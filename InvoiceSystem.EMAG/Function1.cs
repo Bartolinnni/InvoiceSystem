@@ -2,15 +2,22 @@ using System;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using InvoiceSystem.EMAG.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InvoiceSystem.EMAG
 {
     public class Function1
     {
-        [FunctionName("Function1")]
-        public void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
+        private readonly IOrderAttachmentService _orderAttachmentService;
+        public Function1(IOrderAttachmentService orderAttachmentService)
         {
-            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+            _orderAttachmentService = orderAttachmentService;
+        }
+        [FunctionName("Function1")]
+        public void Run([TimerTrigger("*/30  *  *  *  *")]TimerInfo myTimer, ILogger log)
+        {
+            _orderAttachmentService.UploadingOrderAttachment();
         }
     }
 }

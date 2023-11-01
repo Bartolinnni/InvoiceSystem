@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +12,8 @@ using RestSharp.Authenticators;
 
 namespace InvoiceSystem.EMAG.Services
 {
-    public class OrderDataDownloading : IOrderDataDownloading
+    public class OrderService : IOrderService
     {
-
         public async Task<List<Order>> DownloadDataFromAllCountries()
         {
             Task<List<Order>> romaniaTask = DownloadData("ro");
@@ -37,7 +37,7 @@ namespace InvoiceSystem.EMAG.Services
         {
             var options = new RestClientOptions($"https://marketplace-api.emag.{language}/api-3")
             {
-                Authenticator = new HttpBasicAuthenticator("username", "password")
+                Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["EMAG_USER_NAME"], ConfigurationManager.AppSettings["EMAG_PASSWORD"])
             };
 
             var client = new RestClient(options);
@@ -59,9 +59,9 @@ namespace InvoiceSystem.EMAG.Services
                 IsComplete = (int?)t["is_complete"] ?? null,
                 Type = (int?)t["type"] ?? null,
                 PaymentModeId = (int)t["payment_mode_id"],
-                DetaledPaymentMethod = (string?)t["detailed_payment_method"] ?? null,
-                DeliveryMode = (string?)t["delivery_mode"] ?? null,
-                Details = (string?)t["detail"] ?? null,
+                DetaledPaymentMethod = (string)t["detailed_payment_method"] ?? null,
+                DeliveryMode = (string)t["delivery_mode"] ?? null,
+                Details = (string)t["detail"] ?? null,
                 Date = (DateTime)t["date"],
                 PaymentStatus = (int?)t["payment_status"] ?? null,
                 CashedCo = (int?)t["cashed_co"] ?? null,
@@ -93,40 +93,38 @@ namespace InvoiceSystem.EMAG.Services
             return null;
         }
 
-        private static Customer? ParseCustomerData(JToken t)
+        private static Customer ParseCustomerData(JToken t)
         {
-            if (t["customer"].HasValues)
+            if (t["customer"] != null)
             {
                 Customer customerParsedData = new Customer()
                 {
                     Id = (int?)t["customer"]["id"] ?? null,
-                    Name = (string?)t["customer"]["name"] ?? null,
-                    Email = (string?)t["customer"]["email"] ?? null,
-                    Comapny = (string?)t["customer"]["comapny"] ?? null,
-                    Gender = (string?)t["customer"]["gender"] ?? null,
-                    Code = (string?)t["customer"]["code"] ?? null,
-                    RegistrationNumber = (string?)t["customer"]["registration_number"] ?? null,
-                    Bank = (string?)t["customer"]["bank"] ?? null,
-                    IBan = (string?)t["customer"]["iban"] ?? null,
-                    Fax = (string?)t["customer"]["fax"] ?? null,
+                    Name = (string)t["customer"]["name"] ?? null,
+                    Email = (string)t["customer"]["email"] ?? null,
+                    Comapny = (string)t["customer"]["comapny"] ?? null,
+                    Gender = (string)t["customer"]["gender"] ?? null,
+                    Code = (string)t["customer"]["code"] ?? null,
+                    RegistrationNumber = (string)t["customer"]["registration_number"] ?? null,
+                    Bank = (string)t["customer"]["bank"] ?? null,
+                    IBan = (string)t["customer"]["iban"] ?? null,
+                    Fax = (string)t["customer"]["fax"] ?? null,
                     LegalEntity = (int?)t["customer"]["legal_entity"] ?? null,
                     IsVatPayer = (int?)t["customer"]["is_vat_payer"] ?? null,
-                    Phone1 = (string?)t["customer"]["phone_1"] ?? null,
-                    Phone2 = (string?)t["customer"]["phone_2"] ?? null,
-                    Phone3 = (string?)t["customer"]["phone_3"] ?? null,
-                    BlillingName = (string?)t["customer"]["billing_name"] ?? null,
-                    BilingPhne = (string?)t["customer"]["billing_phone"] ?? null,
-                    BillingCountry = (string?)t["customer"]["billing_country"] ?? null,
-                    BillingSuburb = (string?)t["customer"]["billing_suburb"] ?? null,
-                    BillingCity = (string?)t["customer"]["billing_city"] ?? null,
-                    BillingStreet = (string?)t["customer"]["billing_street"] ?? null,
-                    BillingPostCode = (string?)t["customer"]["billing_postal_code"] ?? null,
-                    ShippingContact = (string?)t["customer"]["shipping_contact"] ?? null,
-                    ShippingPhone = (string?)t["customer"]["shipping_phone"] ?? null
+                    Phone1 = (string)t["customer"]["phone_1"] ?? null,
+                    Phone2 = (string)t["customer"]["phone_2"] ?? null,
+                    Phone3 = (string)t["customer"]["phone_3"] ?? null,
+                    BlillingName = (string)t["customer"]["billing_name"] ?? null,
+                    BilingPhne = (string)t["customer"]["billing_phone"] ?? null,
+                    BillingCountry = (string)t["customer"]["billing_country"] ?? null,
+                    BillingSuburb = (string)t["customer"]["billing_suburb"] ?? null,
+                    BillingCity = (string)t["customer"]["billing_city"] ?? null,
+                    BillingStreet = (string)t["customer"]["billing_street"] ?? null,
+                    BillingPostCode = (string)t["customer"]["billing_postal_code"] ?? null,
+                    ShippingContact = (string)t["customer"]["shipping_contact"] ?? null,
+                    ShippingPhone = (string)t["customer"]["shipping_phone"] ?? null
                 };
-
                 return customerParsedData;
-                
             }
             
             return null;
